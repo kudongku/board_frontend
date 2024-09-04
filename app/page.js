@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import axios from '../axios';
+import instance from '../axios';
 import PostThumbnail from './component/postThumbnail';
 
 export default function Home() {
@@ -10,7 +10,7 @@ export default function Home() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get('/posts');
+        const response = await instance.get('/posts');
         setPosts(response.data);
       } catch (error) {
         console.error('Error fetching posts:', error);
@@ -25,7 +25,7 @@ export default function Home() {
       <h1 className="text-3xl font-bold text-gray-800 mb-8">게시물 목록</h1>
       <div className="w-full max-w-4xl space-y-4">
         {posts.map((post) => (
-          <PostThumbnail key={post.id} post={post} />
+          <PostThumbnail key={post.postId} post={post} />
         ))}
       </div>
     </div>
