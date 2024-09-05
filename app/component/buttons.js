@@ -16,7 +16,12 @@ export default function Buttons() {
         console('게시물 생성 중 오류가 발생했습니다.');
       }
     } catch (error) {
-      alert(error.response.data);
+      if (error.response.status == 403) {
+        alert('권한이 없어 로그인창으로 이동합니다.');
+        router.push('/login');
+      } else {
+        alert(error.response.data);
+      }
       console.error('Error fetching posts:', error);
     }
   };

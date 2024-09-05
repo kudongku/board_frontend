@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import instance from '@/axios';
+import { useRouter } from 'next/navigation';
 
 export default function Comments() {
+  const router = useRouter();
+
   const [comments, setComments] = useState([]);
   const currentPath = usePathname();
   const postId = currentPath.split('/')[2];
@@ -14,7 +17,12 @@ export default function Comments() {
         setComments(response.data);
       } catch (error) {
         console.error('Error fetching posts:', error);
-        alert(error.response.data);
+        if (error.response.status == 403) {
+          alert('권한이 없어 로그인창으로 이동합니다.');
+          router.push('/login');
+        } else {
+          alert(error.response.data);
+        }
       }
     };
 
@@ -39,7 +47,12 @@ export default function Comments() {
       }
     } catch (error) {
       console.error('댓글 생성 실패:', error);
-      alert(error.response.data);
+      if (error.response.status == 403) {
+        alert('권한이 없어 로그인창으로 이동합니다.');
+        router.push('/login');
+      } else {
+        alert(error.response.data);
+      }
     }
 
     event.target.reset();
@@ -102,7 +115,12 @@ const Comment = ({ comment, postId, onUpdate }) => {
       }
     } catch (error) {
       console.error('댓글 수정 실패:', error);
-      alert(error.response.data);
+      if (error.response.status == 403) {
+        alert('권한이 없어 로그인창으로 이동합니다.');
+        router.push('/login');
+      } else {
+        alert(error.response.data);
+      }
     }
   };
 
@@ -119,7 +137,12 @@ const Comment = ({ comment, postId, onUpdate }) => {
       }
     } catch (error) {
       console.error('댓글 삭제 실패:', error);
-      alert(error.response.data);
+      if (error.response.status == 403) {
+        alert('권한이 없어 로그인창으로 이동합니다.');
+        router.push('/login');
+      } else {
+        alert(error.response.data);
+      }
     }
   };
 

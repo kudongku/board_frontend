@@ -17,7 +17,12 @@ export default function Home({ params }) {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching posts:', error);
-        alert(error.response.data);
+        if (error.response.status == 403) {
+          alert('권한이 없어 로그인창으로 이동합니다.');
+          router.push('/login');
+        } else {
+          alert(error.response.data);
+        }
         setLoading(false);
       }
     };
@@ -36,7 +41,12 @@ export default function Home({ params }) {
       router.push(`/posts/${params.id}`);
     } catch (error) {
       console.error('게시물 생성 실패:', error);
-      alert(error.response.data);
+      if (error.response.status == 403) {
+        alert('권한이 없어 로그인창으로 이동합니다.');
+        router.push('/login');
+      } else {
+        alert(error.response.data);
+      }
     }
   };
 

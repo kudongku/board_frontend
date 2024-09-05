@@ -17,7 +17,12 @@ export default function Home() {
       router.push(`/login`);
     } catch (error) {
       console.error('회원가입 실패:', error);
-      alert(error.response.data);
+      if (error.response.status == 403) {
+        alert('권한이 없어 로그인창으로 이동합니다.');
+        router.push('/login');
+      } else {
+        alert(error.response.data);
+      }
     }
   };
 
