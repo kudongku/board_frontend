@@ -3,7 +3,7 @@
 import Buttons from '../../component/buttons';
 import React, { useEffect, useState } from 'react';
 import instance from '../../../axios';
-// import Comments from './comment';
+import Comments from '@/app/component/comment';
 
 export default function Detail({ params }) {
   const [post, setPost] = useState(null);
@@ -32,7 +32,7 @@ export default function Detail({ params }) {
       <Buttons />
       <p className="text-gray-800 mt-4">{post.content}</p>
       <hr className="my-6 border-gray-300" />
-      {/* <Comments /> */}
+      <Comments />
     </div>
   );
 }
