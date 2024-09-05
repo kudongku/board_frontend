@@ -14,6 +14,7 @@ export default function Home() {
         setPosts(response.data);
       } catch (error) {
         console.error('Error fetching posts:', error);
+        alert(error.response.data);
       }
     };
 

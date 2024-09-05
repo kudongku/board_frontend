@@ -22,9 +22,6 @@ export default function PostThumbnail({ post }) {
           </div>
         </div>
         <div className="text-md text-gray-700 mb-4">{post.username}</div>
-        <div className="text-sm text-gray-500">
-          {/* Add any additional content or styling here if needed */}
-        </div>
       </div>
     </div>
   );

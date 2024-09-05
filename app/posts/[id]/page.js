@@ -4,18 +4,27 @@ import Buttons from '../../component/buttons';
 import React, { useEffect, useState } from 'react';
 import instance from '../../../axios';
 import Comments from '@/app/component/comment';
+import { useRouter } from 'next/navigation';
 
 export default function Detail({ params }) {
+  const router = useRouter();
+
   const [post, setPost] = useState(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const response = await instance.get(`/posts/${params.id}`);
-        console.log(response.data);
         setPost(response.data);
       } catch (error) {
-        console.error('Error fetching posts:', error);
+        console.error('Error fetching posts:', error.response);
+
+        if (error.response.status == 403) {
+          alert('권한이 없어 로그인창으로 이동합니다.');
+          router.push('/login');
+        } else {
+          alert(error.response.data);
+        }
       }
     };
     fetchPosts();

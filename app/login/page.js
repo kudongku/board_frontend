@@ -18,21 +18,14 @@ export default function Home() {
 
       if (response.status === 200) {
         const bearerToken = response.data;
-
-        console.log(bearerToken);
-
-        // Axios 전역 설정에 토큰 저장
-        instance.defaults.headers.common['Authorization'] = `${bearerToken}`;
         localStorage.setItem('bearerToken', bearerToken);
-
-        // 예: 특정 페이지로 리다이렉트
         router.push(`/`);
       } else {
-        setError('로그인 중 오류가 발생했습니다.');
+        console.error('로그인 중 오류가 발생했습니다.');
       }
     } catch (error) {
       console.error('로그인 실패:', error);
-      setError('로그인 중 오류가 발생했습니다.');
+      alert(error.response.data);
     }
   };
 

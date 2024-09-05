@@ -13,11 +13,11 @@ export default function Home({ params }) {
     const fetchPosts = async () => {
       try {
         const response = await instance.get(`/posts/${params.id}`);
-        console.log(response.data);
         setPost(response.data);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching posts:', error);
+        alert(error.response.data);
         setLoading(false);
       }
     };
@@ -32,16 +32,11 @@ export default function Home({ params }) {
     const data = Object.fromEntries(formData);
 
     try {
-      const response = await instance.put(`/posts/${params.id}`, data);
-
-      if (response.status === 200) {
-        router.push(`/posts/${params.id}`);
-      } else {
-        setError('게시물 생성 중 오류가 발생했습니다.');
-      }
+      await instance.put(`/posts/${params.id}`, data);
+      router.push(`/posts/${params.id}`);
     } catch (error) {
       console.error('게시물 생성 실패:', error);
-      setError('게시물 생성 중 오류가 발생했습니다.');
+      alert(error.response.data);
     }
   };
 

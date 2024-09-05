@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import instance from '@/axios';
 
 export default function Comments() {
-  const router = useRouter();
   const [comments, setComments] = useState([]);
   const currentPath = usePathname();
   const postId = currentPath.split('/')[2];
@@ -15,6 +14,7 @@ export default function Comments() {
         setComments(response.data);
       } catch (error) {
         console.error('Error fetching posts:', error);
+        alert(error.response.data);
       }
     };
 
@@ -35,11 +35,11 @@ export default function Comments() {
           .get(`/posts/${postId}/comments`)
           .then((response) => setComments(response.data));
       } else {
-        setError('댓글 생성 중 오류가 발생했습니다.');
+        console.log('댓글 생성 중 오류가 발생했습니다.');
       }
     } catch (error) {
       console.error('댓글 생성 실패:', error);
-      setError('댓글 생성 중 오류가 발생했습니다.');
+      alert(error.response.data);
     }
 
     event.target.reset();
@@ -102,7 +102,7 @@ const Comment = ({ comment, postId, onUpdate }) => {
       }
     } catch (error) {
       console.error('댓글 수정 실패:', error);
-      alert('댓글 수정 중 오류가 발생했습니다.');
+      alert(error.response.data);
     }
   };
 
@@ -119,6 +119,7 @@ const Comment = ({ comment, postId, onUpdate }) => {
       }
     } catch (error) {
       console.error('댓글 삭제 실패:', error);
+      alert(error.response.data);
     }
   };
 

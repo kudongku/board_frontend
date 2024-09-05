@@ -1,5 +1,3 @@
-'use client';
-
 import { useRouter, usePathname } from 'next/navigation';
 import instance from '@/axios';
 
@@ -9,13 +7,17 @@ export default function Buttons() {
   const postId = currentPath.split('/')[2];
 
   const handleDeleteClick = async () => {
-    const response = await instance.delete(`/posts/${postId}`);
-    console.log(response.data);
+    try {
+      const response = await instance.delete(`/posts/${postId}`);
 
-    if (response.status === 200) {
-      router.push(`/`);
-    } else {
-      console.log('게시물 생성 중 오류가 발생했습니다.');
+      if (response.status === 200) {
+        router.push(`/`);
+      } else {
+        console('게시물 생성 중 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      alert(error.response.data);
+      console.error('Error fetching posts:', error);
     }
   };
 

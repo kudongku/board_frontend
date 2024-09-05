@@ -13,16 +13,11 @@ export default function Home() {
     const data = Object.fromEntries(formData);
 
     try {
-      const response = await instance.post('/users', data);
-
-      if (response.status === 200) {
-        router.push(`/login`);
-      } else {
-        setError('로그인 중 오류가 발생했습니다.');
-      }
+      await instance.post('/users', data);
+      router.push(`/login`);
     } catch (error) {
-      console.error('로그인 실패:', error);
-      setError('로그인 중 오류가 발생했습니다.');
+      console.error('회원가입 실패:', error);
+      alert(error.response.data);
     }
   };
 
