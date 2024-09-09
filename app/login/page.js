@@ -19,7 +19,7 @@ export default function Home() {
       if (response.status === 200) {
         const bearerToken = response.data;
         localStorage.setItem('bearerToken', bearerToken);
-        router.push(`/`);
+        window.location.href = '/';
       } else {
         console.error('로그인 중 오류가 발생했습니다.');
       }

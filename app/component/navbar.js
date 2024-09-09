@@ -16,7 +16,6 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('bearerToken');
     setIsLoggedIn(false);
-    // 로그아웃 후 홈으로 리디렉션
     window.location.href = '/';
   };
 
@@ -25,19 +24,23 @@ export default function Navbar() {
       <Link href="/" className="text-xl font-bold hover:text-gray-200 mr-4">
         게시판
       </Link>
-      <Link
-        href="/posts"
-        className="text-xl font-bold hover:text-gray-200 mr-4"
-      >
-        Posting
-      </Link>
+
       {isLoggedIn ? (
-        <button
-          onClick={handleLogout}
-          className="text-xl font-bold hover:text-gray-200"
-        >
-          로그아웃
-        </button>
+        <div>
+          <Link
+            href="/posts"
+            className="text-xl font-bold hover:text-gray-200 mr-4"
+          >
+            Posting
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            className="text-xl font-bold hover:text-gray-200"
+          >
+            로그아웃
+          </button>
+        </div>
       ) : (
         <Link href="/login" className="text-xl font-bold hover:text-gray-200">
           로그인
