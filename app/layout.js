@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import './globals.css';
+import Navbar from './component/navbar';
 
 export const metadata = {
   title: 'Create Next App',
@@ -11,26 +11,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="bg-gray-100 text-gray-900">
         <header className="bg-blue-600 text-white shadow-md">
-          <div className="container mx-auto px-4 py-2 flex justify-start items-center">
-            <Link
-              href="/"
-              className="text-xl font-bold hover:text-gray-200 mr-4"
-            >
-              게시판
-            </Link>
-            <Link
-              href="/posts"
-              className="text-xl font-bold hover:text-gray-200 mr-4"
-            >
-              Posting
-            </Link>
-            <Link
-              href="/login"
-              className="text-xl font-bold hover:text-gray-200"
-            >
-              로그인
-            </Link>
-          </div>
+          <Navbar></Navbar>
         </header>
         <main className="container mx-auto px-4 py-6">{children}</main>
       </body>
