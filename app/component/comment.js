@@ -1,102 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import React, { useState } from 'react';
 import instance from '@/axios';
-import { useRouter } from 'next/navigation';
 
-export default function Comments() {
-  const router = useRouter();
-
-  const [comments, setComments] = useState([]);
-  const currentPath = usePathname();
-  const postId = currentPath.split('/')[2];
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await instance.get(`/posts/${postId}/comments`);
-        setComments(response.data);
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-        if (error.response.status == 403) {
-          alert('권한이 없어 로그인창으로 이동합니다.');
-          router.push('/login');
-        } else {
-          alert(error.response.data);
-        }
-      }
-    };
-
-    fetchPosts();
-  }, [postId]);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData);
-
-    try {
-      const response = await instance.post(`/posts/${postId}/comments`, data);
-
-      if (response.status === 200) {
-        instance
-          .get(`/posts/${postId}/comments`)
-          .then((response) => setComments(response.data));
-      } else {
-        console.log('댓글 생성 중 오류가 발생했습니다.');
-      }
-    } catch (error) {
-      console.error('댓글 생성 실패:', error);
-      if (error.response.status == 403) {
-        alert('권한이 없어 로그인창으로 이동합니다.');
-        router.push('/login');
-      } else {
-        alert(error.response.data);
-      }
-    }
-
-    event.target.reset();
-  };
-
-  return (
-    <div className="flex flex-col items-center justify-start min-h-screen bg-gray-50 p-6 pt-20 rounded-lg">
-      <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-4xl">
-        <div className="flex items-center space-x-4">
-          <input
-            id="content"
-            type="text"
-            name="content"
-            placeholder="댓글 입력"
-            className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"
-          />
-          <button
-            type="submit"
-            className="px-3 py-1.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
-          >
-            확인
-          </button>
-        </div>
-      </form>
-
-      <div className="w-full max-w-4xl space-y-4 mt-6">
-        {comments.map((comment) => (
-          <Comment
-            key={comment.commentId}
-            comment={comment}
-            postId={postId}
-            onUpdate={() =>
-              instance
-                .get(`/posts/${postId}/comments`)
-                .then((response) => setComments(response.data))
-            }
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-const Comment = ({ comment, postId, onUpdate }) => {
+export default function Comment({ comment, postId, onUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.content);
 
@@ -191,4 +96,4 @@ const Comment = ({ comment, postId, onUpdate }) => {
       )}
     </div>
   );
-};
+}
