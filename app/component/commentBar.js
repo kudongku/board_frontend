@@ -45,13 +45,14 @@ export default function CommentBar({ postId }) {
       const response = await instance.post(`/posts/${postId}/comments`, data);
 
       if (response.status === 200) {
-        window.location.href = `/posts/${postId}`;
+        setComments((prevComments) => [response.data, ...prevComments]);
+        setTimeout(() => window.location.reload(), 0);
       } else {
         console.log('댓글 생성 중 오류가 발생했습니다.');
       }
     } catch (error) {
       console.error('댓글 생성 실패:', error);
-      if (error.response.status == 403) {
+      if (error.response.status === 403) {
         alert('권한이 없어 로그인창으로 이동합니다.');
         router.push('/login');
       } else {
@@ -88,11 +89,12 @@ export default function CommentBar({ postId }) {
             key={comment.commentId}
             comment={comment}
             postId={postId}
-            onUpdate={() =>
-              instance
-                .get(`/posts/${postId}/comments`)
-                .then((response) => setComments(response.data))
-            }
+            onUpdate={async () => {
+              const response = await instance.get(
+                `/posts/${postId}/comments?page=${currentPage}&size=10&sort=createdAt,desc`
+              );
+              setComments(response.data.content);
+            }}
           />
         ))}
       </div>
