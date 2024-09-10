@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
 
 const instance = axios.create({
   baseURL: 'http://localhost:8080/api',
