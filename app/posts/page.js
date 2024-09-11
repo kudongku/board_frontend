@@ -2,32 +2,62 @@
 
 import { useRouter } from 'next/navigation';
 import instance from '../../axios';
+import { useState } from 'react';
 
 export default function Home() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
 
     const formData = new FormData(event.target);
-    const data = Object.fromEntries(formData);
+    const title = formData.get('title');
+    const content = formData.get('content');
+    const image = formData.get('image');
 
     try {
-      const response = await instance.post('/posts', data);
+      const response = await instance.post('/posts', {
+        title,
+        content,
+      });
 
       if (response.status === 200) {
-        router.push(`/`);
+        const postId = response.data;
+
+        if (image && postId) {
+          const imageFormData = new FormData();
+          imageFormData.append('postImage', image);
+
+          const imageResponse = await instance.post(
+            `/posts/${postId}/files`,
+            imageFormData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            }
+          );
+
+          if (imageResponse.status === 200) {
+            router.push(`/`);
+          } else {
+            console.error('이미지 업로드 중 오류가 발생했습니다.');
+          }
+        }
       } else {
         console.error('게시물 생성 중 오류가 발생했습니다.');
       }
     } catch (error) {
-      console.error('게시물 생성 실패:', error);
-      if (error.response.status == 403) {
+      console.error('요청 실패:', error);
+      if (error.response.status === 403) {
         alert('권한이 없어 로그인창으로 이동합니다.');
         router.push('/login');
-      } else {
-        alert(error.response.data);
       }
+      router.push(`/`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,11 +85,21 @@ export default function Home() {
             className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+        <div>
+          <input
+            id="image"
+            type="file"
+            name="image"
+            accept="image/*"
+            className="w-full p-2 border border-gray-300 rounded-lg"
+          />
+        </div>
         <button
           type="submit"
           className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
+          disabled={loading}
         >
-          제출
+          {loading ? 'Submitting...' : '제출'}
         </button>
       </form>
     </div>
