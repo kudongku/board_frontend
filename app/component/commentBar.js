@@ -31,10 +31,6 @@ export default function CommentBar({ postId }) {
     fetchPosts();
   }, [postId, currentPage]);
 
-  const handlePageGroupChange = (direction) => {
-    setCurrentPage(currentPage + direction);
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -45,7 +41,6 @@ export default function CommentBar({ postId }) {
       const response = await instance.post(`/posts/${postId}/comments`, data);
 
       if (response.status === 200) {
-        setComments((prevComments) => [response.data, ...prevComments]);
         setTimeout(() => window.location.reload(), 0);
       } else {
         console.log('댓글 생성 중 오류가 발생했습니다.');
@@ -102,7 +97,7 @@ export default function CommentBar({ postId }) {
       <div className="flex justify-center space-x-2 mt-4">
         {currentPage !== 0 && (
           <button
-            onClick={() => handlePageGroupChange(-1)}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
             className="px-4 py-2 rounded bg-blue-500 text-white"
           >
             이전
@@ -111,7 +106,7 @@ export default function CommentBar({ postId }) {
 
         {hasNext && (
           <button
-            onClick={() => handlePageGroupChange(1)}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
             className="px-4 py-2 rounded bg-blue-500 text-white"
           >
             다음

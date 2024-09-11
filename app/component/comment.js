@@ -3,9 +3,9 @@ import instance from '@/axios';
 import { useRouter } from 'next/navigation';
 
 export default function Comment({ comment, postId, onUpdate }) {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.content);
-  const router = useRouter();
 
   const handleEditSubmit = async () => {
     try {
