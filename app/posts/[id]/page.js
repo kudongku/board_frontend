@@ -47,7 +47,7 @@ export default function Detail({ params }) {
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
       <p className="text-gray-700 mb-4">작성자: {post.username}</p>
-      <Buttons />
+      <Buttons postId={params.id} />
       <div>
         {postImage && (
           <img src={postImage} alt="Post" className="max-w-full h-auto" />

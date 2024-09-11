@@ -1,10 +1,8 @@
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import instance from '@/axios';
 
-export default function Buttons() {
+export default function Buttons({ postId }) {
   const router = useRouter();
-  const currentPath = usePathname();
-  const postId = currentPath.split('/')[2];
 
   const handleDeleteClick = async () => {
     try {
@@ -30,7 +28,7 @@ export default function Buttons() {
     <div className="flex justify-end mb-5">
       <div className="flex space-x-2">
         <button
-          onClick={() => router.push(currentPath + '/edit')}
+          onClick={() => router.push(postId + '/edit')}
           className="px-3 py-1.5 bg-blue-300 text-white font-semibold rounded-lg hover:bg-blue-600 hover:scale-110 hover:shadow-lg transition-transform transition-shadow duration-300 ease-in-out text-sm"
         >
           ✍️
