@@ -6,6 +6,7 @@ import instance from '@/axios';
 
 export default function Home({ params }) {
   const router = useRouter();
+  const postId = params.id;
   const [post, setPost] = useState(null);
   const [postImage, setPostImage] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,11 +14,11 @@ export default function Home({ params }) {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await instance.get(`/posts/${params.id}`);
+        const response = await instance.get(`/posts/${postId}`);
         setPost(response.data);
         setLoading(false);
 
-        const responseTwo = await instance.get(`/posts/${params.id}/files`, {
+        const responseTwo = await instance.get(`/posts/${postId}/files`, {
           responseType: 'blob',
         });
         const imageUrl = URL.createObjectURL(responseTwo.data);
@@ -27,40 +28,40 @@ export default function Home({ params }) {
           URL.revokeObjectURL(imageUrl);
         };
       } catch (error) {
-        console.error('Error fetching posts:', error);
-
         if (error.response?.status === 403) {
           alert('권한이 없어 로그인창으로 이동합니다.');
           router.push('/login');
+        } else if (error.response.status !== 452) {
+          console.error('Error fetching posts:', error);
+          alert(error.message);
         }
 
         setLoading(false);
       }
     };
     fetchPosts();
-  }, [params.id]);
+  }, [postId]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
     setLoading(true);
+    const formData = new FormData(event.target);
     const title = formData.get('title');
     const content = formData.get('content');
     const image = formData.get('image');
 
     try {
-      await instance.put(`/posts/${params.id}`, {
+      await instance.put(`/posts/${postId}`, {
         title,
         content,
       });
 
-      if (image && params.id) {
-        console.log('!!!');
+      if (image && postId) {
         const imageFormData = new FormData();
         imageFormData.append('postImage', image);
 
         const imageResponse = await instance.put(
-          `/posts/${params.id}/files`,
+          `/posts/${postId}/files`,
           imageFormData,
           {
             headers: {
@@ -74,20 +75,23 @@ export default function Home({ params }) {
         }
       }
 
-      router.push(`/posts/${params.id}`);
+      router.push(`/posts/${postId}`);
     } catch (error) {
-      console.error('게시물 생성 실패:', error);
       if (error.response?.status === 403) {
         alert('권한이 없어 로그인창으로 이동합니다.');
         router.push('/login');
+      } else if (error.response.status !== 452) {
+        console.error('Error fetching posts:', error);
+        alert(error.response.data);
       }
-      router.push(`/posts/${params.id}`);
+
+      router.push(`/posts/${postId}`);
     }
   };
 
   const handleDeleteImage = async () => {
     try {
-      const response = await instance.delete(`/posts/${params.id}/files`);
+      const response = await instance.delete(`/posts/${postId}/files`);
       if (response.status === 200) {
         console.log(response);
         setPostImage(null);

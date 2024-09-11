@@ -29,7 +29,7 @@ export default function Home() {
         if (image && postId) {
           const imageFormData = new FormData();
           imageFormData.append('postImage', image);
-
+          // 파일업로드 먼저
           const imageResponse = await instance.post(
             `/posts/${postId}/files`,
             imageFormData,
