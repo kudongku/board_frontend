@@ -8,7 +8,8 @@ export default function Home({ params }) {
   const router = useRouter();
   const postId = params.id;
   const [post, setPost] = useState(null);
-  const [postImage, setPostImage] = useState(null);
+  const [fileUrl, setFileUrl] = useState(null);
+  const [fileName, setFileName] = useState(null);
   const [loading, setLoading] = useState(true);
   const [imageFile, setImageFile] = useState(null);
 
@@ -18,18 +19,25 @@ export default function Home({ params }) {
         const response = await instance.get(`/posts/${postId}`);
         setPost(response.data);
         setLoading(false);
-
         let hasFile = response.data.hasFile;
 
         if (hasFile) {
-          const responseTwo = await instance.get(`/posts/${postId}/files`, {
+          const fileResponse = await instance.get(`/posts/${postId}/files`, {
             responseType: 'blob',
           });
-          const imageUrl = URL.createObjectURL(responseTwo.data);
-          setPostImage(imageUrl);
+
+          const disposition = fileResponse.headers['content-disposition'];
+          const extractedFileName = disposition
+            ? disposition.split('filename=')[1]?.replace(/"/g, '')
+            : 'downloaded_file';
+
+          const fileBlob = fileResponse.data;
+          const fileUrl = URL.createObjectURL(fileBlob);
+          setFileUrl(fileUrl);
+          setFileName(extractedFileName);
 
           return () => {
-            URL.revokeObjectURL(imageUrl);
+            URL.revokeObjectURL(fileUrl);
           };
         }
       } catch (error) {
@@ -99,7 +107,7 @@ export default function Home({ params }) {
       const response = await instance.delete(`/posts/${postId}/files`);
 
       if (response.status === 200) {
-        setPostImage(null);
+        setFileUrl(null);
         setImageFile(null);
         alert('이미지가 삭제되었습니다.');
       } else {
@@ -115,7 +123,7 @@ export default function Home({ params }) {
     const file = event.target.files[0];
     if (file) {
       setImageFile(file);
-      setPostImage(URL.createObjectURL(file));
+      setFileUrl(URL.createObjectURL(file));
     }
   };
 
@@ -161,32 +169,31 @@ export default function Home({ params }) {
           />
         </div>
         <div>
-          {postImage ? (
+          {fileUrl && (
             <div>
-              <img
-                src={postImage}
-                alt="Post"
-                className="max-w-full h-auto mb-4"
-              />
+              <a
+                href={fileUrl}
+                download={fileName}
+                className="text-blue-600 underline"
+              >
+                {fileName || '파일 다운로드'}
+              </a>
               <button
                 type="button"
                 onClick={handleDeleteImage}
                 className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300"
               >
-                이미지 삭제
+                삭제하기
               </button>
             </div>
-          ) : (
-            <p>이미지가 없습니다.</p>
           )}
         </div>
         <div>
-          <p>수정을 원하시면 다른 사진을 업로드 해주세요</p>
+          <p>수정을 원하시면 다른 파일을 업로드 해주세요</p>
           <input
-            id="image"
+            id="file"
             type="file"
-            name="image"
-            accept="image/*"
+            name="file"
             className="w-full p-2 border border-gray-300 rounded-lg"
             onChange={handleImageChange}
           />
