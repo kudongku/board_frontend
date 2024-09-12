@@ -18,36 +18,35 @@ export default function Home() {
     const image = formData.get('image');
 
     try {
+      let uploadedFildId = null;
+
+      if (image.size != 0) {
+        const imageFormData = new FormData();
+        imageFormData.append('postImage', image);
+
+        const imageResponse = await instance.post(
+          `/posts/files`,
+          imageFormData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+
+        if (imageResponse.status === 200) {
+          uploadedFildId = imageResponse.data.fileId;
+        }
+      }
+
       const response = await instance.post('/posts', {
         title,
         content,
+        fileId: uploadedFildId,
       });
 
       if (response.status === 200) {
-        const postId = response.data;
-
-        if (image && postId) {
-          const imageFormData = new FormData();
-          imageFormData.append('postImage', image);
-          // 파일업로드 먼저
-          const imageResponse = await instance.post(
-            `/posts/${postId}/files`,
-            imageFormData,
-            {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-              },
-            }
-          );
-
-          if (imageResponse.status === 200) {
-            router.push(`/`);
-          } else {
-            console.error('이미지 업로드 중 오류가 발생했습니다.');
-          }
-        }
-      } else {
-        console.error('게시물 생성 중 오류가 발생했습니다.');
+        router.push(`/`);
       }
     } catch (error) {
       console.error('요청 실패:', error);
