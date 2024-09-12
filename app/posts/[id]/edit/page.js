@@ -10,6 +10,7 @@ export default function Home({ params }) {
   const [post, setPost] = useState(null);
   const [postImage, setPostImage] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [imageFile, setImageFile] = useState(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -18,29 +19,32 @@ export default function Home({ params }) {
         setPost(response.data);
         setLoading(false);
 
-        const responseTwo = await instance.get(`/posts/${postId}/files`, {
-          responseType: 'blob',
-        });
-        const imageUrl = URL.createObjectURL(responseTwo.data);
-        setPostImage(imageUrl);
+        let hasFile = response.data.hasFile;
 
-        return () => {
-          URL.revokeObjectURL(imageUrl);
-        };
+        if (hasFile) {
+          const responseTwo = await instance.get(`/posts/${postId}/files`, {
+            responseType: 'blob',
+          });
+          const imageUrl = URL.createObjectURL(responseTwo.data);
+          setPostImage(imageUrl);
+
+          return () => {
+            URL.revokeObjectURL(imageUrl);
+          };
+        }
       } catch (error) {
-        if (error.response?.status === 403) {
+        if (error.response && error.response.status === 403) {
           alert('권한이 없어 로그인창으로 이동합니다.');
           router.push('/login');
         } else if (error.response.status !== 452) {
           console.error('Error fetching posts:', error);
           alert(error.message);
         }
-
-        setLoading(false);
       }
     };
+
     fetchPosts();
-  }, [postId]);
+  }, [postId, router]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -48,17 +52,13 @@ export default function Home({ params }) {
     const formData = new FormData(event.target);
     const title = formData.get('title');
     const content = formData.get('content');
-    const image = formData.get('image');
 
     try {
-      await instance.put(`/posts/${postId}`, {
-        title,
-        content,
-      });
+      let uploadedFildId = null;
 
-      if (image && postId) {
+      if (imageFile) {
         const imageFormData = new FormData();
-        imageFormData.append('postImage', image);
+        imageFormData.append('postImage', imageFile);
 
         const imageResponse = await instance.put(
           `/posts/${postId}/files`,
@@ -70,20 +70,25 @@ export default function Home({ params }) {
           }
         );
 
-        if (imageResponse.status !== 200) {
-          console.error('이미지 업로드 중 오류가 발생했습니다.');
+        if (imageResponse.status === 200) {
+          uploadedFildId = imageResponse.data.fileId;
         }
       }
+
+      await instance.put(`/posts/${postId}`, {
+        title,
+        content,
+        fileId: uploadedFildId,
+      });
 
       router.push(`/posts/${postId}`);
     } catch (error) {
       if (error.response?.status === 403) {
         alert('권한이 없어 로그인창으로 이동합니다.');
         router.push('/login');
-      } else if (error.response.status !== 452) {
-        console.error('Error fetching posts:', error);
-        alert(error.response.data);
       }
+      console.error('Error fetching posts:', error);
+      alert(error.response.data);
 
       router.push(`/posts/${postId}`);
     }
@@ -92,9 +97,10 @@ export default function Home({ params }) {
   const handleDeleteImage = async () => {
     try {
       const response = await instance.delete(`/posts/${postId}/files`);
+
       if (response.status === 200) {
-        console.log(response);
         setPostImage(null);
+        setImageFile(null);
         alert('이미지가 삭제되었습니다.');
       } else {
         alert('이미지 삭제 중 오류가 발생했습니다.');
@@ -102,6 +108,14 @@ export default function Home({ params }) {
     } catch (error) {
       console.error('이미지 삭제 실패:', error);
       alert('이미지 삭제 실패');
+    }
+  };
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setPostImage(URL.createObjectURL(file));
     }
   };
 
@@ -174,6 +188,7 @@ export default function Home({ params }) {
             name="image"
             accept="image/*"
             className="w-full p-2 border border-gray-300 rounded-lg"
+            onChange={handleImageChange}
           />
         </div>
         <button
