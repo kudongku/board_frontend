@@ -17,16 +17,19 @@ export default function Detail({ params }) {
       try {
         const response = await instance.get(`/posts/${postId}`);
         setPost(response.data);
+        let hasFile = response.data.hasFile;
 
-        const responseTwo = await instance.get(`/posts/${postId}/files`, {
-          responseType: 'blob',
-        });
-        const imageUrl = URL.createObjectURL(responseTwo.data);
-        setPostImage(imageUrl);
+        if (hasFile) {
+          const responseTwo = await instance.get(`/posts/${postId}/files`, {
+            responseType: 'blob',
+          });
+          const imageUrl = URL.createObjectURL(responseTwo.data);
+          setPostImage(imageUrl);
 
-        return () => {
-          URL.revokeObjectURL(imageUrl);
-        };
+          return () => {
+            URL.revokeObjectURL(imageUrl);
+          };
+        }
       } catch (error) {
         if (error.response && error.response.status === 403) {
           alert('권한이 없어 로그인창으로 이동합니다.');
