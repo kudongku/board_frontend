@@ -10,7 +10,8 @@ export default function Detail({ params }) {
   const router = useRouter();
   const postId = params.id;
   const [post, setPost] = useState(null);
-  const [postImage, setPostImage] = useState(null);
+  const [fileUrl, setFileUrl] = useState(null);
+  const [fileName, setFileName] = useState(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -20,14 +21,22 @@ export default function Detail({ params }) {
         let hasFile = response.data.hasFile;
 
         if (hasFile) {
-          const responseTwo = await instance.get(`/posts/${postId}/files`, {
+          const fileResponse = await instance.get(`/posts/${postId}/files`, {
             responseType: 'blob',
           });
-          const imageUrl = URL.createObjectURL(responseTwo.data);
-          setPostImage(imageUrl);
+
+          const disposition = fileResponse.headers['content-disposition'];
+          const extractedFileName = disposition
+            ? disposition.split('filename=')[1]?.replace(/"/g, '')
+            : 'downloaded_file';
+
+          const fileBlob = fileResponse.data;
+          const fileUrl = URL.createObjectURL(fileBlob);
+          setFileUrl(fileUrl);
+          setFileName(extractedFileName);
 
           return () => {
-            URL.revokeObjectURL(imageUrl);
+            URL.revokeObjectURL(fileUrl);
           };
         }
       } catch (error) {
@@ -54,8 +63,14 @@ export default function Detail({ params }) {
       <p className="text-gray-700 mb-4">작성자: {post.username}</p>
       <Buttons postId={postId} />
       <div>
-        {postImage && (
-          <img src={postImage} alt="Post" className="max-w-full h-auto" />
+        {fileUrl && (
+          <a
+            href={fileUrl}
+            download={fileName}
+            className="text-blue-600 underline"
+          >
+            {fileName || '파일 다운로드'}
+          </a>
         )}
       </div>
       <p className="text-gray-800 mt-4">{post.content}</p>
