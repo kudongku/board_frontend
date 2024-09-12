@@ -15,25 +15,23 @@ export default function Home() {
     const formData = new FormData(event.target);
     const title = formData.get('title');
     const content = formData.get('content');
-    const image = formData.get('image');
+    const file = formData.get('file');
 
     try {
       let uploadedFildId = null;
 
-      if (image.size != 0) {
-        const imageFormData = new FormData();
-        imageFormData.append('postImage', image);
-
+      if (file.name !== '') {
+        const fileFormData = new FormData();
+        fileFormData.append('postFile', file);
         const imageResponse = await instance.post(
           `/posts/files`,
-          imageFormData,
+          fileFormData,
           {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
           }
         );
-
         if (imageResponse.status === 200) {
           uploadedFildId = imageResponse.data.fileId;
         }
@@ -86,10 +84,9 @@ export default function Home() {
         </div>
         <div>
           <input
-            id="image"
+            id="file"
             type="file"
-            name="image"
-            accept="image/*"
+            name="file"
             className="w-full p-2 border border-gray-300 rounded-lg"
           />
         </div>
