@@ -27,7 +27,7 @@ export default function Detail({ params }) {
 
           const disposition = fileResponse.headers['content-disposition'];
           const extractedFileName = disposition
-            ? disposition.split('filename=')[1]?.replace(/"/g, '')
+            ? disposition.split('filename=')[1]
             : 'downloaded_file';
 
           const fileBlob = fileResponse.data;
